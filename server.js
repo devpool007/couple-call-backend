@@ -11,20 +11,54 @@ const io = new Server(server, {
   cors: {
     origin: '*',
     methods: ['GET', 'POST']
-  }
+  },
+
+    pingTimeout: 60000,
+    pingInterval: 25000,
+    reconnection: true,
+    reconnectionAttempts: 3,
+    reconnectionDelay: 1000
+});
+// Handle connection errors
+io.engine.on('connection_timeout', (socket) => {
+  console.log('Connection timeout:', socket.id);
+  socket.disconnect();
+});
+
+io.engine.on('connection_error', (err) => {
+  console.log('Connection error:', err);
 });
 
 // Store active users with room information
 const rooms = {};
+
+// Add logging function
+function logRoomState() {
+  console.log('Current room state:', JSON.stringify(rooms, null, 2));
+}
 
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
   
   // When a user joins a room
   socket.on('join-room', (roomId, userId) => {
+    // Check if user is already in any room
+    for (const existingRoomId in rooms) {
+      if (rooms[existingRoomId].users[socket.id]) {
+        console.log(`User ${userId} already in room ${existingRoomId}`);
+        return;
+      }
+    }
     // Create room if it doesn't exist
     if (!rooms[roomId]) {
       rooms[roomId] = { users: {} };
+    }
+
+    // Check if room is full (has 2 users already)
+    if (Object.keys(rooms[roomId].users).length >= 2) {
+      socket.emit('room-full', roomId);
+      console.log(`User ${userId} tried to join full room ${roomId}`);
+      return;
     }
     
     // Add user to room
@@ -35,6 +69,7 @@ io.on('connection', (socket) => {
     socket.to(roomId).emit('user-connected', userId);
     
     console.log(`User ${userId} joined room ${roomId}`);
+    logRoomState(); // Log the current state of rooms
     
     // Send list of existing users to the new participant
     const existingUsers = [];
@@ -126,6 +161,7 @@ io.on('connection', (socket) => {
         }
         
         console.log(`User ${userId} left room ${roomId}`);
+        logRoomState(); // Log the current state of rooms
         break;
       }
     }
