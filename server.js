@@ -9,8 +9,9 @@ app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*',
-    methods: ['GET', 'POST']
+    origin: ['http://localhost:5173', 'https://couple-call.vercel.app/'],
+    methods: ['GET', 'POST'],
+    credentials: true
   },
 
     pingTimeout: 60000,
@@ -43,6 +44,12 @@ io.on('connection', (socket) => {
   // When a user joins a room
   socket.on('join-room', (roomId, userId) => {
     // Check if user is already in any room
+
+    if (typeof roomId !== 'string' || roomId.length > 50) {
+      console.log('Invalid room ID!');
+      return;
+    }
+
     for (const existingRoomId in rooms) {
       if (rooms[existingRoomId].users[socket.id]) {
         console.log(`User ${userId} already in room ${existingRoomId}`);
