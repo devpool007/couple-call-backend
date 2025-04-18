@@ -3,14 +3,35 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const Room = require("./models/Room");
+const apiRoutes = require("./routes/apiRoutes"); // Import your API routes
 
 const app = express();
+// Add middleware to parse JSON bodies
+app.use(express.json());
+// Add middleware to parse URL-encoded bodies
+app.use(express.urlencoded({ extended: true }));
+ 
+app.use('/api', apiRoutes); // Use the API routes
+
+// Handle 404s for API routes
+app.use((req, res) => {
+  res.status(404).json({ error: 'API endpoint not found' });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    error: 'Something broke!' 
+  });
+});
+
 app.use(cors());
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "https://couple-call.vercel.app/"],
+    origin: ["http://localhost:5173/", "https://couple-call.vercel.app/"],
     methods: ["GET", "POST"],
     credentials: true,
   },
