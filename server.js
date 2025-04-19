@@ -67,7 +67,11 @@ const userToRoom = new Map(); // For quick user-to-room lookup
 function logRoomState() {
   console.log("Current room state:");
   rooms.forEach((room, roomId) => {
-    console.log(`Room ID: ${roomId}, Users:`, Array.from(room.users.entries()));
+    const userDetails = Array.from(room.users.entries()).map(([socketId, userId]) => {
+      const userName = room.getUserName(userId) || 'Anonymous';
+      return `${userId} (${userName})`;
+    });
+    console.log(`Room ID: ${roomId}, Users:`, userDetails);
   });
 }
 
@@ -112,10 +116,10 @@ io.on("connection", (socket) => {
     }
 
     socket.join(roomId);
-    room.addUser(socket.id, userId);
+    room.addUser(socket.id, userId, userName);
     userToRoom.set(socket.id, roomId);
 
-    socket.to(roomId).emit("user-connected", userId, userName), 
+    socket.to(roomId).emit("user-connected", userId, userName);
     console.log(`User ${userId} named ${userName} joined room ${roomId}`);
     logRoomState();
 
