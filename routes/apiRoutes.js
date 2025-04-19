@@ -1,5 +1,13 @@
 const express = require("express");
+const { rateLimit } = require('express-rate-limit');
+const { submitFeedback } = require("../db/submitFeedback");
+
+const feedbackLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 5, // limit each IP to 5 requests per minute
+});
 const router = express.Router();
+
 
 router.get("/how-to-use", (req, res) => {
   res.json({
@@ -15,13 +23,12 @@ router.get("/privacy-policy", (req, res) => {
   });
 });
 
-router.post('/feedback', async (req, res) => {
+router.post('/feedback', feedbackLimiter, async (req, res) => {
   try {
     const { name, email, message } = req.body;
     // Store feedback in database or send email
-    // Add your implementation here
-    
-    res.json({ message: 'Feedback received successfully!' });
+    const result = await submitFeedback(name, email, message);
+    result.success && res.status(200).json({ message: 'Feedback saved!' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to submit feedback' });
   }

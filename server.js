@@ -10,6 +10,13 @@ const app = express();
 app.use(express.json());
 // Add middleware to parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
+
+// Enable CORS for all routes
+app.use(cors({
+  origin: ['http://localhost:5173', 'https://couple-call.vercel.app'],
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
  
 app.use('/api', apiRoutes); // Use the API routes
 
@@ -26,12 +33,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.use(cors());
-
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173/", "https://couple-call.vercel.app/"],
+    origin: ["http://localhost:5173/", "https://couple-call.vercel.app/",],
     methods: ["GET", "POST"],
     credentials: true,
   },
