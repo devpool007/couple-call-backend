@@ -126,7 +126,10 @@ io.on("connection", (socket) => {
     const existingUsers = [];
     room.users.forEach((id, socketId) => {
       if (socketId !== socket.id) {
-        existingUsers.push(id);
+        existingUsers.push({
+          userId: id,
+          userName: room.getUserName(id) || 'Anonymous'
+        });
       }
     });
 
