@@ -6,6 +6,8 @@ const Room = require("./models/Room");
 const apiRoutes = require("./routes/apiRoutes"); // Import your API routes
 
 const app = express();
+
+app.set('trust proxy', 1);
 // Add middleware to parse JSON bodies
 app.use(express.json());
 // Add middleware to parse URL-encoded bodies
@@ -86,7 +88,7 @@ io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
   // When a user joins a room
-  socket.on("join-room", (roomId, userId) => {
+  socket.on("join-room", (roomId, userId, userName) => {
     if (typeof roomId !== "string" || roomId.length > 50) {
       console.log("Invalid room ID!");
       return;
@@ -113,8 +115,8 @@ io.on("connection", (socket) => {
     room.addUser(socket.id, userId);
     userToRoom.set(socket.id, roomId);
 
-    socket.to(roomId).emit("user-connected", userId);
-    console.log(`User ${userId} joined room ${roomId}`);
+    socket.to(roomId).emit("user-connected", userId, userName), 
+    console.log(`User ${userId} named ${userName} joined room ${roomId}`);
     logRoomState();
 
     const existingUsers = [];
