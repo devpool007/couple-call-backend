@@ -33,21 +33,12 @@ backend/
    ```
 
 3. Set up the database:
-   - Install PostgreSQL if not already installed.
-   - Create a database:
-     ```bash
-     createdb couple_call_dev
-     ```
-   - Create a `.env` file in the project root with the following content:
-     ```env
-     DB_USER=your_username
-     DB_HOST=localhost
-     DB_NAME=couple_call_dev
-     DB_PASSWORD=your_password
-     DB_PORT=5432
-     ```
 
-4. Run the server:
+- We use Supabase as our hosted PostgreSQL database. This is only used for /feedback endpoint.
+Hence if you would like to test it just use your own supabase API credentials by creating a .env file in the root of the project and adding your Supabase project credentials:
+ 
+
+5. Run the server:
    ```bash
    node backend/server.js
    ```
