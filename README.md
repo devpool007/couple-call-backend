@@ -18,7 +18,6 @@ backend/
 
 ## Prerequisites
 - Node.js (v16 or later)
-- PostgreSQL (for feedback storage)
 
 ## Setup
 1. Clone the repository:
@@ -39,8 +38,11 @@ Hence if you would like to test it just use your own supabase API credentials by
  
 
 5. Run the server:
+   
+- We use `nodemon` for automatic server restarts during development:
+  
    ```bash
-   node backend/server.js
+   npm start
    ```
 
 ## API Endpoints
@@ -67,12 +69,7 @@ Submits user feedback.
   }
   ```
 
-## Development
-- Use `nodemon` for automatic server restarts during development:
-  ```bash
-  npm install -g nodemon
-  nodemon backend/server.js
-  ```
+
 
 ## License
 This project is licensed under the MIT License.
